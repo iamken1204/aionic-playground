@@ -2,6 +2,12 @@
 
 Provisioning playground for Ansible / bIONIC beaver.
 
+## Prequirements
+
+* [Ansible](https://www.ansible.com/)
+* [Vagrant](https://www.vagrantup.com/)
+* [VirtualBox](https://www.virtualbox.org/)
+
 ## Fire up VMs
 
 ```bash
