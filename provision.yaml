@@ -1,0 +1,27 @@
+- hosts: all
+  become: true
+  become_user: root
+  gather_facts: false
+  pre_tasks:
+    - name: Install python for Ansible
+      raw: test -e /usr/bin/python || (yum -y update && yum install -y python) || (apt -y update && apt install -y python-minimal)
+      register: output
+      changed_when: output.stdout != ""
+    - setup: # aka gather_facts
+  roles:
+    - host-setup
+
+  tasks:
+  - name: Download & unarchive CockroachDB
+    unarchive:
+      src: https://binaries.cockroachdb.com/cockroach-v2.1.0.linux-amd64.tgz
+      dest: /home/vagrant/cockroach-v2.1.0.linux-amd64
+      remote_src: true
+
+  - name: Copy CockroachDB binany
+    copy:
+      src: /home/vagrant/cockroach-v2.1.0.linux-amd64/cockroach
+      dest: /usr/bin/cockroach
+      owner: vagrant
+      mode: u+rwx,g-wx,o-wx
+      remote_src: true

@@ -1,0 +1,12 @@
+---
+- name: Overwrite /etc/hosts
+  template:
+    src: etc-hosts.j2
+    dest: /etc/hosts
+    backup: false
+  when: generate_etc_hosts
+
+- name: Ensure timesyncd is running
+  service:
+    name: systemd-timesyncd
+    state: restarted
