@@ -2,7 +2,7 @@
 # vi: set ft=ruby :
 
 Box = "peru/ubuntu-18.04-server-amd64"
-NodeCount = 1
+NodeCount = 2
 
 Vagrant.configure("2") do |config|
   config.vm.box = Box
@@ -16,6 +16,16 @@ Vagrant.configure("2") do |config|
       # node.vm.network "public_network"
       # node.vm.synced_folder "../data", "/vagrant_data"
 	  end
+  end
+
+  config.vm.provision "shell" do |s|
+    ssh_pub_key = File.readlines("#{Dir.home}/.ssh/id_rsa.pub").first.strip
+    s.inline = <<-SHELL
+      echo #{ssh_pub_key} >> /home/vagrant/.ssh/authorized_keys
+      mkdir -p /root/.ssh
+      touch /root/.ssh/authorized_keys
+      echo #{ssh_pub_key} >> /root/.ssh/authorized_keys
+    SHELL
   end
 
   config.vm.provider "virtualbox" do |vb|
