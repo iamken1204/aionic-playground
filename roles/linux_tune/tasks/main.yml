@@ -1,0 +1,53 @@
+---
+- name: create application user
+  user:
+    name: "{{ application_user }}"
+
+- name: ensure timesyncd is running
+  service:
+    name: systemd-timesyncd
+    state: restarted
+
+- name: tune ulimit (root)
+  pam_limits:
+    domain: root
+    limit_type: '-'
+    limit_item: "{{ item.key }}"
+    value: "{{ item.val }}"
+  loop:
+    - { key: nofile, val: 9999999 }
+    - { key: nproc, val: 8096 }
+
+- name: "tune ulimit ({{ application_user }})"
+  pam_limits:
+    domain: "{{ application_user }}"
+    limit_type: '-'
+    limit_item: "{{ item.key }}"
+    value: "{{ item.val }}"
+  loop:
+    - { key: nofile, val: 9999999 }
+    - { key: nproc, val: 8096 }
+
+- name: tune sysctl configs
+  sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.val }}"
+    sysctl_set: True
+  loop:
+    - { key: fs.file-max, val: 9999999 }
+    - { key: fs.nr_open, val: 9999999 }
+    - { key: net.core.netdev_max_backlog, val: 4096 }
+    - { key: net.core.rmem_max, val: 16777216 }
+    - { key: net.core.somaxconn, val: 65535 }
+    - { key: net.core.wmem_max, val: 16777216 }
+    - { key: net.ipv4.ip_local_port_range, val: '1025       65535' }
+    - { key: net.ipv4.tcp_fin_timeout, val: 30 }
+    - { key: net.ipv4.tcp_keepalive_time, val: 30 }
+    - { key: net.ipv4.tcp_max_syn_backlog, val: 20480 }
+    - { key: net.ipv4.tcp_max_tw_buckets, val: 400000 }
+    - { key: net.ipv4.tcp_no_metrics_save, val: 1 }
+    - { key: net.ipv4.tcp_syn_retries, val: 2 }
+    - { key: net.ipv4.tcp_synack_retries, val: 2 }
+    - { key: net.ipv4.tcp_tw_reuse, val: 1 }
+    - { key: vm.min_free_kbytes, val: 65536 }
+    - { key: vm.overcommit_memory, val: 1 }

@@ -1,0 +1,18 @@
+[Unit]
+Description=Cockroach Database cluster node
+Requires=network.target
+
+[Service]
+Type=notify
+WorkingDirectory={{ crdb_workdir }}
+ExecStart=/usr/local/bin/cockroach start --insecure --listen-addr={{ service_ip }} --cache=.25 --max-sql-memory=.25
+TimeoutStopSec=60
+Restart=always
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=cockroach
+User={{ crdb_user }}
+
+[Install]
+WantedBy=default.target

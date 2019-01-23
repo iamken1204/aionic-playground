@@ -1,0 +1,42 @@
+<domain type='kvm'>
+        <name>aionic-scylla-3</name>
+        <memory unit='KiB'>31457280</memory>
+        <currentMemory unit='KiB'>31457280</currentMemory>
+        <vcpu>24</vcpu>
+        <cpu mode='custom' match='exact' check='full'>
+	              <model fallback='forbid'>Haswell-noTSX-IBRS</model>
+	              <feature policy='require' name='vme' />
+	              <feature policy='require' name='f16c' />
+	              <feature policy='require' name='rdrand' />
+	              <feature policy='require' name='hypervisor' />
+	              <feature policy='require' name='arat' />
+	              <feature policy='require' name='xsaveopt' />
+	              <feature policy='require' name='abm' />
+        </cpu>
+        <os>
+                <type arch='x86_64' machine='pc-i440fx-bionic'>hvm</type>
+                <boot dev='hd'/>
+        </os>
+        <clock offset='utc'/>
+        <on_poweroff>destroy</on_poweroff>
+        <on_reboot>restart</on_reboot>
+        <on_crash>destroy</on_crash>
+        <devices>
+                <emulator>/usr/bin/kvm</emulator>
+                <disk type='file' device='disk'>
+                        <driver name='qemu' type='qcow2'/>
+                        <source file='/kvm-images/aionic-scylla-3.img'/>
+                        <target dev='vda' bus='virtio'/>
+                </disk>
+                <interface type='bridge'>
+                        <source bridge='br2'/>
+                        <model type='virtio'/>
+                </interface>
+                <serial type='pty'>
+                        <target port='0'/>
+                </serial>
+                <console type='pty'>
+                        <target type='serial' port='0'/>
+                </console>
+        </devices>
+</domain>

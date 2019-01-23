@@ -1,0 +1,24 @@
+application_user: droi
+
+scylla_version: 3.0
+scylla_cluster_name: SuperScylla
+scylla_seed_nodes_ips: "{{ groups['scylla-seed'] | map('extract', hostvars, ['service_ip']) | join(',') }}"
+scylla_cql_port: 9042
+scylla_develop_mode: False
+scylla_xfs_disk: /dev/nvme0n1
+
+crdb_version: v2.1.3
+crdb_package: "cockroach-{{ crdb_version }}.linux-amd64"
+crdb_user: "{{ application_user }}"
+crdb_workdir: /var/lib/cockroach
+crdb_ssd_disk: /dev/nvme0n1
+crdb_proxy_port: 26257
+crdb_web_proxy_port: 8080
+crdb_peers: "{{ groups['crdb-cluster'] | map('extract', hostvars, ['service_ip']) | join(',') }}"
+
+redis_port: 6379
+redis_proxy_port: 6379
+redis_master_ip: "{{ hostvars[groups['redis-master'][0]].service_ip }}"
+redis_sentinel_name: neoredis
+redis_sentinel_quorum: "{{ (groups['redis-sentinel'] | length) // 2 + 1 }}"
+redis_sentinel_port: 26379

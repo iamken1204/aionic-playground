@@ -1,0 +1,65 @@
+---
+- name: install Redis server/sentinel
+  apt:
+    update_cache: True
+    name: "{{ item }}"
+  loop:
+  - redis
+  - redis-sentinel
+
+- name: replace apt provided Redis binaries with more recent version
+  copy:
+    src: "redis-5.0.3/{{ item }}"
+    dest: "/usr/bin/{{ item }}"
+    mode: u+rwx,g-wx,o-wx
+    owner: redis
+    group: redis
+  loop:
+  - redis-benchmark
+  - redis-check-aof
+  - redis-check-rdb
+  - redis-cli
+  - redis-sentinel
+  - redis-server
+
+- name: modify Redis server(master) configuration
+  replace:
+    path: /etc/redis/redis.conf
+    regexp: "{{ item.reg }}"
+    replace: "{{ item.rep }}"
+  loop:
+  - { reg: "^bind(.*)", rep: "bind 0.0.0.0" }
+  # - { reg: "bind(.*)", rep: "bind {{ service_ip }}" }
+  - { reg: "^protected-mode(.*)", rep: "protected-mode no" }
+  - { reg: "^port(.*)", rep: "port {{ redis_port }}" }
+  - { reg: "^appendonly(.*)", rep: "appendonly yes" }
+  when: "'redis-server' in group_names"
+
+- name: modify Redis server(slave) configuration
+  replace:
+    path: /etc/redis/redis.conf
+    regexp: "{{ item.reg }}"
+    replace: "{{ item.rep }}"
+  loop:
+  - { reg: "^(# )?slaveof(.*)", rep: "slaveof {{ redis_master_ip }} {{ redis_port }}" }
+  when: "'redis-slave' in group_names"
+
+- name: modify Redis server(sentinel) configuration
+  template:
+    src: sentinel.conf.j2
+    dest: /etc/redis/sentinel.conf
+  when: "'redis-sentinel' in group_names"
+
+- name: start the Redis server systemd service
+  systemd:
+    name: redis-server
+    state: restarted
+    enabled: True
+  when: "'redis-server' in group_names"
+
+- name: start the Redis sentinel systemd service
+  systemd:
+    name: redis-sentinel
+    state: restarted
+    enabled: True
+  when: "'redis-sentinel' in group_names"

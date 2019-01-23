@@ -1,0 +1,19 @@
+users:
+  - default
+  - name: droi
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: sys
+    ssh_import_id: None
+    ssh_authorized_keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDPnRJBw4QYXqGcKoLd5JaKJS8wqsSvItQENmrV2LrPtdapzrrJnYat9OBUPoGpQDUjTToc110jYmcDGKrGYklr9tfJuqIli4Og8d74yRUFus9jJXhaMEoZ7F+/nj2VAKtzPSYmjtjoobKtPH49u6qdts48HKwWeVN7PeQqWwljEgXosuVd66OBO5WretzhR9wSq8tWGj1eX/eK+R8Si2uplro67RcOkk0hZVtoacIuvD3i905CSKQ1aO2vFy4AbU47DYPLHxytYj+nkaSY8pMCtJJpSkL3kmWJf+3KgDscve9zZ70uDok4JFVMomgMcArGS15GRvCnTKs6G4cx5+6KtJPTKxyn/UfK+jns2kjNkLRBEP+CYkkJZ3XzK6Eb6QgScnds7S6+16uaHSRiD4paWFTx0MlVmGemEl++3FTpF6/QCjlGNZCSY0+Su7QuU1CPgr0cNfUw03wyCfiWYSPb8Ev0FSFFZwMlQUrPuQmSeGFRMWg3f2CwIZsG9jo935sg/FkuDySJgLIviap0bKfPTAR3XmykH/ANMdiV7qQqBdPChth3Mr4csIYLdECcWHnnnwLXHMmN3B3VxQ2oqOORMV0Mo6ZDIQFsL8tUwDiAOw1d+Z7SvlLOTpJA6+ksCBACJht7lg4Fdq9S/QfqCgTyGLDLusvyn9WP4ydxYt/57Q== kettan@neihu
+network:
+  version: 2
+  ethernets:
+    enp0s2:
+      dhcp4: no
+      gateway4: 10.128.83.254
+      addresses:
+      - 10.128.80.201/22
+      nameservers:
+        addresses:
+        - 8.8.8.8

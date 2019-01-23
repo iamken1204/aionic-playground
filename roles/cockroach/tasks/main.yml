@@ -1,0 +1,103 @@
+---
+# - name: create CRDB working directory
+#   file:
+#     name: "{{ crdb_workdir }}"
+#     owner: "{{ crdb_user }}"
+#     state: directory
+
+# - name: download CRDB
+#   unarchive:
+#     src: "https://binaries.cockroachdb.com/{{ crdb_package }}.tgz"
+#     dest: "{{ ansible_env.HOME }}"
+#     remote_src: True
+
+# - name: copy CRDB binary to /usr/bin
+#   copy:
+#     src: "{{ ansible_env.HOME }}/{{ crdb_package }}/cockroach"
+#     dest: /usr/local/bin/cockroach
+#     owner: "{{ crdb_user }}"
+#     mode: u+rwx,g-wx,o-wx
+#     remote_src: True
+
+# - name: clean CRDB archive
+#   file:
+#     path: "{{ ansible_env.HOME }}/{{ crdb_package }}"
+#     state: absent
+
+# - name: Create a ext4 filesystem on crdb_ssd_disk
+#   filesystem:
+#     fstype: ext4
+#     dev: "{{ crdb_ssd_disk }}"
+#   when: not(
+#       (crdb_ssd_disk is undefined)
+#       or
+#       (crdb_ssd_disk is none)
+#       or
+#       (crdb_ssd_disk | trim == '')
+#     )
+
+# - name: mount up CRDB data dir with SSD
+#   mount:
+#     path: "{{ crdb_workdir }}"
+#     src: "{{ crdb_ssd_disk }}"
+#     fstype: ext4
+#     state: mounted
+#   when: not(
+#       (crdb_ssd_disk is undefined)
+#       or
+#       (crdb_ssd_disk is none)
+#       or
+#       (crdb_ssd_disk | trim == '')
+#     )
+
+# - name: ensure CRDB data dir is present and has a proper ownership
+#   file:
+#     path: "{{ crdb_workdir }}"
+#     owner: "{{ crdb_user }}"
+#     group: "{{ crdb_user }}"
+#     state: directory
+
+# Start the Piorneer CRDB first
+- name: add piorneer CRDB systemd service config file
+  template:
+    src: crdb.piorneer.service.j2
+    dest: "{{ crdb_systemd_config }}"
+  when: "'crdb-piorneer' in group_names"
+
+- name: start piorneer CRDB systemd service
+  systemd:
+    name: crdb
+    state: started
+    enabled: True
+    daemon-reload: True
+  when: "'crdb-piorneer' in group_names"
+
+# Start the follower CRDBs to join the Piorneer
+- name: add CRDB systemd service config file
+  template:
+    src: crdb.service.j2
+    dest: "{{ crdb_systemd_config }}"
+  when: "'crdb-follower' in group_names"
+
+- name: ensure CRDB systemd service is running
+  systemd:
+    name: crdb
+    state: started
+    enabled: True
+    daemon-reload: True
+  when: "'crdb-follower' in group_names"
+
+# Restart the Piorneer CRDB for joining the follower CRDBs
+- name: add CRDB systemd service config file
+  template:
+    src: crdb.service.j2
+    dest: "{{ crdb_systemd_config }}"
+  when: "'crdb-piorneer' in group_names"
+
+- name: ensure CRDB systemd service is running
+  systemd:
+    name: crdb
+    state: restarted
+    enabled: True
+    daemon_reload: True
+  when: "'crdb-piorneer' in group_names"

@@ -1,0 +1,21 @@
+[Unit]
+Description=Envoy proxy
+Requires=network.target
+
+[Service]
+ExecStart={{ envoy_bin_path }} --v2-config-only -l info -c {{ envoy_conf_path }}
+TimeoutStopSec=60
+Restart=on-failure
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=envoy
+User=root
+LimitCORE=infinity
+LimitMEMLOCK=infinity
+LimitNOFILE=800000
+LimitAS=infinity
+LimitNPROC=8096
+
+[Install]
+WantedBy=default.target

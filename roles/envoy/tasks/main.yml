@@ -1,0 +1,28 @@
+---
+- name: create envoy configuration directory
+  file:
+    path: "{{ envoy_conf_path | dirname }}"
+    state: directory
+
+- name: add envoy configuration
+  template:
+    src: envoy.yaml.j2
+    dest: "{{ envoy_conf_path }}"
+
+- name: enable envoy binary
+  copy:
+    src: envoy_v1.9.0_ubuntu1604
+    dest: "{{ envoy_bin_path }}"
+    mode: u+rwx,g-wx,o-wx
+
+- name: add envoy systemd service config file
+  template:
+    src: envoy.service.j2
+    dest: /etc/systemd/system/envoy.service
+
+- name: start the envoy systemd service
+  systemd:
+    name: envoy
+    state: restarted
+    enabled: True
+    daemon-reload: True

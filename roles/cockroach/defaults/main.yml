@@ -1,0 +1,2 @@
+---
+crdb_systemd_config: /etc/systemd/system/crdb.service

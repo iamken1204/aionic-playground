@@ -1,0 +1,28 @@
+---
+- hosts: all
+  tasks:
+    - name: "install essentials"
+      apt:
+        update_cache: True
+        name: "{{ packages }}"
+      vars:
+        packages:
+          - curl
+          - vim
+          - htop
+
+# - hosts: all
+#   roles:
+#     - { role: linux_tune }
+
+- hosts: scylla-cluster
+  roles:
+    - { role: scylla }
+
+# - hosts: crdb-cluster
+#   roles:
+#     - { role: cockroach }
+
+# - hosts: envoy
+#   roles:
+#     - { role: envoy }

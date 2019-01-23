@@ -17,5 +17,5 @@ Provisioning playground for Ansible / bIONIC beaver.
 ## Provision
 
 ```bash
-λ ansible-playbook provision.yaml
+λ ansible-playbook -i inventory/aionic/hosts.ini main.yaml
 ```
