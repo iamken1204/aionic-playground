@@ -11,17 +11,17 @@
           - vim
           - htop
 
-# - hosts: all
-#   roles:
-#     - { role: linux_tune }
+- hosts: all
+  roles:
+    - { role: linux_tune }
 
 - hosts: scylla-cluster
   roles:
     - { role: scylla }
 
-# - hosts: crdb-cluster
-#   roles:
-#     - { role: cockroach }
+- hosts: crdb-cluster
+  roles:
+    - { role: cockroach }
 
 # - hosts: envoy
 #   roles:
