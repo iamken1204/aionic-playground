@@ -46,28 +46,28 @@
 - name: Create a xfs filesystem for Scylla data dir
   filesystem:
     fstype: xfs
-    dev: "{{ scylla_xfs_disk }}"
+    dev: "{{ scylla_ssd_disk }}"
   when: not(
-      (scylla_xfs_disk is undefined)
+      (scylla_ssd_disk is undefined)
       or
-      (scylla_xfs_disk is none)
+      (scylla_ssd_disk is none)
       or
-      (scylla_xfs_disk | trim == '')
+      (scylla_ssd_disk | trim == '')
     )
 
 - name: mount up Scylla data dir with XFS partition
   mount:
     path: /var/lib/scylla
-    src: "{{ scylla_xfs_disk }}"
+    src: "{{ scylla_ssd_disk }}"
     fstype: xfs
     opts: noatime,nofail
     state: mounted
   when: not(
-      (scylla_xfs_disk is undefined)
+      (scylla_ssd_disk is undefined)
       or
-      (scylla_xfs_disk is none)
+      (scylla_ssd_disk is none)
       or
-      (scylla_xfs_disk | trim == '')
+      (scylla_ssd_disk | trim == '')
     )
 
 - name: ensure Scylla data directories are present
@@ -104,11 +104,11 @@
   command: /usr/lib/scylla/scylla_dev_mode_setup --developer-mode 1
   when: scylla_develop_mode
 
-# - name: set GossipingPropertyFileSnitch settings
-#   copy:
-#     src: cassandra-rackdc.properties
-#     dest: /etc/scylla/cassandra-rackdc.properties
-#     owner: scylla
+- name: set GossipingPropertyFileSnitch settings
+  copy:
+    src: cassandra-rackdc.properties
+    dest: /etc/scylla/cassandra-rackdc.properties
+    owner: scylla
 
 - name: ensure Scylla systemd service is running (seed servers)
   systemd:
