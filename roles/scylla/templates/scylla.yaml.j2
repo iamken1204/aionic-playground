@@ -166,7 +166,7 @@ write_request_timeout_in_ms: 2000
 #
 # You can use a custom Snitch by setting this to the full class name
 # of the snitch, which will be assumed to be on your classpath.
-{% if aws_uri_check.status %}
+{% if is_aws_environment %}
 endpoint_snitch: Ec2Snitch
 {% elif (groups['scylla-cluster'] | length) == 1 %}
 endpoint_snitch: SimpleSnitch
