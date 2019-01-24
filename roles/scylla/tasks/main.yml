@@ -88,13 +88,13 @@
         --no-cpuscaling-setup \
         --no-io-setup \
         --no-coredump-setup \
-        --nic "{{ hostvars[inventory_hostname]['nic'] }}"
+        --nic "{{ scylla_nic }}"
   register: command_result
   failed_when: "'This is a supported kernel version' not in command_result.stdout"
 #       --no-ec2-check \
 
 - name: run Scylla NIC setup script
-  command: "/usr/lib/scylla/scylla_sysconfig_setup --nic {{ hostvars[inventory_hostname]['nic'] }} --setup-nic"
+  command: "/usr/lib/scylla/scylla_sysconfig_setup --nic {{ scylla_nic }} --setup-nic"
 
 - name: run Scylla IO setup script
   command: scylla_io_setup
