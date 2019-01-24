@@ -6,3 +6,4 @@ scylla_has_ssd: "{{ not(
       or
       (scylla_ssd_disk | trim == '')
     ) }}"
+scylla_develop_mode: "{{ scylla_has_ssd }}"

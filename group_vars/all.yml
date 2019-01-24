@@ -4,7 +4,6 @@ scylla_version: 3.0
 scylla_cluster_name: SuperScylla
 scylla_seed_nodes_ips: "{{ groups['scylla-seed'] | map('extract', hostvars, ['service_ip']) | join(',') }}"
 scylla_cql_port: 9042
-scylla_develop_mode: False
 scylla_ssd_disk: "{{ hostvars[inventory_hostname]['ssd'] }}"
 scylla_nic: "{{ hostvars[inventory_hostname]['nic'] }}"
 scylla_service_ip: "{{ hostvars[inventory_hostname]['service_ip'] }}"

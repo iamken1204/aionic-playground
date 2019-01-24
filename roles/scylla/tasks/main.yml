@@ -79,7 +79,6 @@
         --nic "{{ scylla_nic }}"
   register: command_result
   failed_when: "'This is a supported kernel version' not in command_result.stdout"
-#       --no-ec2-check \
 
 - name: run Scylla NIC setup script
   command: "/usr/lib/scylla/scylla_sysconfig_setup --nic {{ scylla_nic }} --setup-nic"
