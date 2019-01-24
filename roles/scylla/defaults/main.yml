@@ -1,0 +1,8 @@
+---
+scylla_has_ssd: "{{ not(
+      (scylla_ssd_disk is undefined)
+      or
+      (scylla_ssd_disk is none)
+      or
+      (scylla_ssd_disk | trim == '')
+    ) }}"

@@ -47,13 +47,7 @@
   filesystem:
     fstype: xfs
     dev: "{{ scylla_ssd_disk }}"
-  when: not(
-      (scylla_ssd_disk is undefined)
-      or
-      (scylla_ssd_disk is none)
-      or
-      (scylla_ssd_disk | trim == '')
-    )
+  when: scylla_has_ssd
 
 - name: mount up Scylla data dir with XFS partition
   mount:
@@ -62,13 +56,7 @@
     fstype: xfs
     opts: noatime,nofail
     state: mounted
-  when: not(
-      (scylla_ssd_disk is undefined)
-      or
-      (scylla_ssd_disk is none)
-      or
-      (scylla_ssd_disk | trim == '')
-    )
+  when: scylla_has_ssd
 
 - name: ensure Scylla data directories are present
   file:
