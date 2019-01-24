@@ -1,2 +1,9 @@
 ---
 crdb_systemd_config: /etc/systemd/system/crdb.service
+crdb_has_ssd: "{{ not(
+      (crdb_ssd_disk is undefined)
+      or
+      (crdb_ssd_disk is none)
+      or
+      (crdb_ssd_disk | trim == '')
+    ) }}"

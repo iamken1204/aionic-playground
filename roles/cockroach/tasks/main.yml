@@ -28,13 +28,7 @@
   filesystem:
     fstype: ext4
     dev: "{{ crdb_ssd_disk }}"
-  when: not(
-      (crdb_ssd_disk is undefined)
-      or
-      (crdb_ssd_disk is none)
-      or
-      (crdb_ssd_disk | trim == '')
-    )
+  when: crdb_has_ssd
 
 - name: mount up CRDB data dir with SSD
   mount:
@@ -42,13 +36,7 @@
     src: "{{ crdb_ssd_disk }}"
     fstype: ext4
     state: mounted
-  when: not(
-      (crdb_ssd_disk is undefined)
-      or
-      (crdb_ssd_disk is none)
-      or
-      (crdb_ssd_disk | trim == '')
-    )
+  when: crdb_has_ssd
 
 - name: ensure CRDB data dir is present and has a proper ownership
   file:
