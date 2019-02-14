@@ -1,0 +1,103 @@
+---
+- name: check if inside AWS EC2
+  uri:
+    url: http://169.254.169.254/latest/meta-data
+    timeout: 2
+  register: aws_uri_check
+  failed_when: False
+
+- name: "set var: aws_uri_check.status"
+  set_fact:
+    is_aws_environment: "{{ aws_uri_check.status == 200 }}"
+
+- name: add keys for downloading Scylla
+  apt_key:
+    keyserver: keyserver.ubuntu.com
+    id: "{{ item }}"
+    state: present
+  loop:
+    - 6B2BFD3660EF3F5B
+    - 17723034C56D4B19
+
+- name: add Scylla apt repository
+  get_url:
+    url: "http://repositories.scylladb.com/scylla/repo/8e046465-e363-4e60-8de0-1f905afd0cde/ubuntu/scylladb-{{ scylla_version }}-bionic.list"
+    dest: /etc/apt/sources.list.d/scylla.list
+
+- name: install Scylla
+  apt:
+    update_cache: True
+    name: scylla
+
+- name: add Scylla systemd service config file
+  template:
+    src: scylla.yaml.j2
+    dest: /etc/scylla/scylla.yaml
+
+- name: Create a xfs filesystem for Scylla data dir
+  filesystem:
+    fstype: xfs
+    dev: "{{ scylla_ssd_disk }}"
+  when: scylla_has_ssd
+
+- name: mount up Scylla data dir with XFS partition
+  mount:
+    path: /var/lib/scylla
+    src: "{{ scylla_ssd_disk }}"
+    fstype: xfs
+    opts: noatime,nofail
+    state: mounted
+  when: scylla_has_ssd
+
+- name: ensure Scylla data directories are present
+  file:
+    path: "{{ item }}"
+    owner: scylla
+    group: scylla
+    state: directory
+  loop:
+  - /var/lib/scylla
+  - /var/lib/scylla/data
+  - /var/lib/scylla/commitlog
+
+- name: run Scylla setup script
+  command: |
+    scylla_setup \
+        --no-raid-setup \
+        --no-cpuscaling-setup \
+        --no-io-setup \
+        --no-coredump-setup \
+        --nic "{{ scylla_nic }}"
+  register: command_result
+  failed_when: "'This is a supported kernel version' not in command_result.stdout"
+
+- name: run Scylla NIC setup script
+  command: "/usr/lib/scylla/scylla_sysconfig_setup --nic {{ scylla_nic }} --setup-nic"
+
+- name: run Scylla IO setup script
+  command: scylla_io_setup
+  when: not scylla_develop_mode
+
+- name: set Scylla to development mode
+  command: /usr/lib/scylla/scylla_dev_mode_setup --developer-mode 1
+  when: scylla_develop_mode
+
+- name: set GossipingPropertyFileSnitch settings
+  template:
+    src: cassandra-rackdc.properties.j2
+    dest: /etc/scylla/cassandra-rackdc.properties
+    owner: scylla
+
+- name: ensure Scylla systemd service is running (seed servers)
+  systemd:
+    name: scylla-server
+    state: restarted
+    enabled: True
+  when: "'scylla-seed' in group_names"
+
+- name: ensure Scylla systemd service is running (non-seed servers)
+  systemd:
+    name: scylla-server
+    state: restarted
+    enabled: True
+  when: "'scylla-node' in group_names"

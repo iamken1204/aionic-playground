@@ -15,7 +15,7 @@
   roles:
     - { role: linux_tune }
 
-- hosts: scylla-cluster
+- hosts: scylla-stack
   roles:
     - { role: scylla }
 

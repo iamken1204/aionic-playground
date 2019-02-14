@@ -1,0 +1,7 @@
+- targets:
+{% for scylla_node in groups['scylla-cluster'] %}
+       - {{ hostvars[scylla_node].service_ip }}:9100
+{% endfor %}
+  labels:
+       cluster: {{ scylla_cluster_name }}
+       dc: {{ scylla_datacenter_name }}

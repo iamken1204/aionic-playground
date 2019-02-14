@@ -2,11 +2,13 @@ application_user: droi
 
 scylla_version: 3.0
 scylla_cluster_name: SuperScylla
+scylla_datacenter_name: droi_china_datacenter
 scylla_seed_nodes_ips: "{{ groups['scylla-seed'] | map('extract', hostvars, ['service_ip']) | join(',') }}"
 scylla_cql_port: 9042
 scylla_ssd_disk: "{{ hostvars[inventory_hostname]['ssd'] }}"
 scylla_nic: "{{ hostvars[inventory_hostname]['nic'] }}"
 scylla_service_ip: "{{ hostvars[inventory_hostname]['service_ip'] }}"
+scylla_monitor_ver: 2.1
 
 crdb_version: v2.1.3
 crdb_package: "cockroach-{{ crdb_version }}.linux-amd64"
