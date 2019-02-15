@@ -9,7 +9,7 @@
       - ethtool
 
 - include_tasks: cluster.yml
-  when: "not 'scylla-monitor' in group_names"
+  when: "'scylla-seed' in group_names or 'scylla-node' in group_names"
 
 - include_tasks: monitor.yml
   when: "'scylla-monitor' in group_names"
