@@ -25,3 +25,7 @@ redis_master_ip: "{{ hostvars[groups['redis-master'][0]].service_ip }}"
 redis_sentinel_name: neoredis
 redis_sentinel_quorum: "{{ (groups['redis-sentinel'] | length) // 2 + 1 }}"
 redis_sentinel_port: 26379
+
+cassandra_seed_nodes_ips: "{{ groups['cassandra-seed'] | map('extract', hostvars, ['service_ip']) | join(',') }}"
+cassandra_service_ip: "{{ hostvars[inventory_hostname]['service_ip'] }}"
+cassandra_ssd_disk: "{{ hostvars[inventory_hostname]['ssd'] }}"

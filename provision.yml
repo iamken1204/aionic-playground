@@ -10,6 +10,7 @@
           - curl
           - vim
           - htop
+          - gnupg
 
 - hosts: all
   roles:
@@ -23,6 +24,10 @@
   roles:
     - { role: cockroach }
 
-# - hosts: envoy
-#   roles:
-#     - { role: envoy }
+- hosts: envoy
+  roles:
+    - { role: envoy }
+
+- hosts: cassandra-cluster
+  roles:
+    - { role: cassandra }

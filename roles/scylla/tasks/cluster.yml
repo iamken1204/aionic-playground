@@ -10,6 +10,11 @@
   set_fact:
     is_aws_environment: "{{ aws_uri_check.status == 200 }}"
 
+- name: ensure timesyncd is running
+  service:
+    name: systemd-timesyncd
+    state: started
+
 - name: add keys for downloading Scylla
   apt_key:
     keyserver: keyserver.ubuntu.com
