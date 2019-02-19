@@ -1,0 +1,86 @@
+---
+- name: check if inside AWS EC2
+  uri:
+    url: http://169.254.169.254/latest/meta-data
+    timeout: 2
+  register: aws_uri_check
+  failed_when: False
+
+- name: "set var: aws_uri_check.status"
+  set_fact:
+    is_aws_environment: "{{ aws_uri_check.status == 200 }}"
+
+- name: ensure timesyncd is running
+  service:
+    name: systemd-timesyncd
+    state: started
+
+- name: add Cassandra repostitory
+  shell: echo "deb http://www.apache.org/dist/cassandra/debian 311x main" >> /etc/apt/sources.list.d/cassandra.sources.list
+
+- name: add Cassandra repo key
+  apt_key:
+    url:  https://www.apache.org/dist/cassandra/KEYS
+    id: A278B781FE4B2BDA
+    state: present
+
+- name: install Cassandra
+  apt:
+    name: cassandra
+    update_cache: True
+
+- name: configure cassandra.yaml
+  template:
+    src: cassandra.yaml.j2
+    dest: /etc/cassandra/cassandra.yaml
+    owner: cassandra
+    group: cassandra
+
+- name: stops original Cassandra
+  systemd:
+    name: cassandra
+    state: stopped
+
+- name: Create a xfs filesystem for Cassandra data dir
+  filesystem:
+    fstype: xfs
+    dev: "{{ cassandra_ssd_disk }}"
+  when: cassandra_has_ssd
+
+- name: mount up Cassandra data dir with XFS partition
+  mount:
+    path: /var/lib/cassandra
+    src: "{{ cassandra_ssd_disk }}"
+    fstype: xfs
+    opts: noatime,nofail
+    state: mounted
+  when: cassandra_has_ssd
+
+- name: ensure Cassandra data directories are present
+  file:
+    path: "{{ item }}"
+    owner: cassandra
+    group: cassandra
+    state: directory
+  loop:
+  - /var/lib/cassandra
+  - /var/lib/cassandra/data
+  - /var/lib/cassandra/data/system
+  - /var/lib/cassandra/commitlog
+
+- name: clean original Cassandra data & cluster meta
+  shell: /bin/rm -rf /var/lib/cassandra/data/system/*
+
+- name: ensure Cassandra systemd service is running (seed servers)
+  systemd:
+    name: cassandra
+    state: restarted
+    enabled: True
+  when: "'cassandra-seed' in group_names"
+
+- name: ensure Cassandra systemd service is running (non-seed servers)
+  systemd:
+    name: cassandra
+    state: restarted
+    enabled: True
+  when: "'cassandra-node' in group_names"

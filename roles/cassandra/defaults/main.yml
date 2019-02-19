@@ -1,0 +1,8 @@
+---
+cassandra_has_ssd: "{{ not(
+      (cassandra_ssd_disk is undefined)
+      or
+      (cassandra_ssd_disk is none)
+      or
+      (cassandra_ssd_disk | trim == '')
+    ) }}"
