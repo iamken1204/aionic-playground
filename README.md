@@ -6,14 +6,19 @@ This playbook **ONLY** tested on Ubuntu 18.04.
 ## How to use
 
 1. Check your target hosts
+
 ```bash
 λ cat inventory/$YOUR_TAEGET/hosts.ini
 ```
+
 2. Check the components you want to deploy
+
 ```bash
 λ cat provision.yml
 ```
+
 3. Provision
+
 ```bash
 λ ansible-playbook -i inventory/$YOUR_TAEGET/hosts.ini provision.yaml
 ```
@@ -26,10 +31,13 @@ This playbook **ONLY** tested on Ubuntu 18.04.
 
 ## Try it
 * Fire up VMs
+
 ```bash
 λ vagrant up
 ```
+
 * Deploy
+
 ```bash
 λ ansible-playbook -i inventory/aionic/hosts.ini provision.yaml
 ```
