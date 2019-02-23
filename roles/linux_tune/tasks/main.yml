@@ -51,3 +51,6 @@
     - { key: net.ipv4.tcp_tw_reuse, val: 1 }
     - { key: vm.min_free_kbytes, val: 65536 }
     - { key: vm.overcommit_memory, val: 1 }
+    # enable TCP BBR
+    - { key: net.core.default_qdisc, val: fq }
+    - { key: net.ipv4.tcp_congestion_control, val: bbr }
